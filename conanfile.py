@@ -1,12 +1,13 @@
 from conan import ConanFile
 from conan.tools.scm import Git
 from conan.tools.files import copy
+from conan.tools.build import can_run
 import os
 
 
 class LazyCppRecipe(ConanFile):
     name = 'lazy_cpp'
-    version = '0.2'
+    version = '0.3'
     user = 'ukhegg'
     channel = 'stable'
     url = 'https://github.com/ukhegg/lazy_cpp.git'
@@ -34,4 +35,6 @@ class LazyCppRecipe(ConanFile):
         self.cpp_info.include_dirs = 'include'
 
     def test(self):
-        pass
+        if can_run(self):
+            cmd = os.path.join(self.cpp.build.bindir, 'tests', "lazy_cpp_tests")
+            self.run(cmd, env="conanrun")

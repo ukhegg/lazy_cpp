@@ -22,5 +22,5 @@ class LazyCppTestConan(ConanFile):
 
     def test(self):
         if can_run(self):
-            cmd = os.path.join(self.cpp.build.bindir, "example")
+            cmd = os.path.join(self.cpp.build.bindir, "lazy_cpp_test_package")
             self.run(cmd, env="conanrun")
