@@ -8,11 +8,10 @@ import os
 
 class LazyCppRecipe(ConanFile):
     name = 'lazy_cpp'
-    version = '0.4'
+    version = '0.5'
     user = 'ukhegg'
     channel = 'stable'
     url = 'https://github.com/ukhegg/lazy_cpp.git'
-    export_sources = 'lazy_cpp/include'
     settings = 'os', 'compiler', 'build_type', 'arch'
     generators = ['CMakeToolchain', 'CMakeDeps']
 
@@ -26,6 +25,11 @@ class LazyCppRecipe(ConanFile):
         git = Git(self)
         git.clone(self.url, target='.')
         git.checkout(self.version)
+
+    def package(self):
+        copy(self, pattern="*.hpp",
+             src=os.path.join(self.source_folder, 'lazy_cpp/include/'),
+             dst=os.path.join(self.package_folder, 'include'))
 
     def package_info(self):
         self.cpp_info.include_dirs = 'include'
