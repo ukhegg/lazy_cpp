@@ -8,7 +8,7 @@ import os
 
 class LazyCppRecipe(ConanFile):
     name = 'lazy_cpp'
-    version = '0.3'
+    version = '0.4'
     user = 'ukhegg'
     channel = 'stable'
     url = 'https://github.com/ukhegg/lazy_cpp.git'
