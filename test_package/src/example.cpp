@@ -2,6 +2,9 @@
 // Created by Zeliukin Nick on 09.03.23.
 //
 
+#include <optional>
+#include <functional>
+
 #include <lazy_cpp/lazy_t.hpp>
 
 int main(int argc, char *argv[])

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(lazy_cpp_test_package)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(lazy_cpp CONFIG REQUIRED)
 

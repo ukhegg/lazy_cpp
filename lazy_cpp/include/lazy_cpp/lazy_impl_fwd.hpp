@@ -1,9 +1,9 @@
 //
-// Created by Zeliukin Nick on 09.03.23.
+// Created by ukhegg on 09.03.23.
 //
-
-#ifndef LAZY_CPP_PROJ_LAZY_IMPL_FWD_HPP
-#define LAZY_CPP_PROJ_LAZY_IMPL_FWD_HPP
+#pragma once
+#include <optional>
+#include <functional>
 
 namespace lazy_cpp::internal
 {
@@ -116,4 +116,3 @@ namespace lazy_cpp::internal
     };
 }
 
-#endif //LAZY_CPP_PROJ_LAZY_IMPL_FWD_HPP

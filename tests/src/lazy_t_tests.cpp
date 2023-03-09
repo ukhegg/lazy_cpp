@@ -9,6 +9,12 @@ namespace lazy_cpp::tests
 {
     TEST_CASE("lazy_t tests")
     {
+        SECTION("simple test")
+        {
+            auto t = lazy_cpp::lazy_from_value(5);
+            REQUIRE(t.get() == 5);
+        }
+
         SECTION("lazy with functional initializer tests")
         {
             auto lazy_int = lazy_from_functor([]() { return 42; });

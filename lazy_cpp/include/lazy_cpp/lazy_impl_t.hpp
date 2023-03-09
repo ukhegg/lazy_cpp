@@ -2,10 +2,7 @@
 // Created by ukhegg on 07.03.23.
 //
 
-#ifndef LAZY_CPP_PROJ_LAZY_IMPL_T_HPP
-#define LAZY_CPP_PROJ_LAZY_IMPL_T_HPP
-
-#include <optional>
+#pragma once
 #include "lazy_cpp/lazy_impl_fwd.hpp"
 
 namespace lazy_cpp
@@ -195,4 +192,3 @@ namespace lazy_cpp::internal
         }
     }
 }
-#endif //LAZY_CPP_PROJ_LAZY_IMPL_T_HPP
