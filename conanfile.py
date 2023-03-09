@@ -4,11 +4,12 @@ from conan.tools.files import copy
 from conan.tools.build import can_run
 from conan.tools.cmake import cmake_layout, CMake
 import os
+import pathlib
 
 
 class LazyCppRecipe(ConanFile):
     name = 'lazy_cpp'
-    version = '0.5'
+    version = '0.6'
     user = 'ukhegg'
     channel = 'stable'
     url = 'https://github.com/ukhegg/lazy_cpp.git'
@@ -39,4 +40,4 @@ class LazyCppRecipe(ConanFile):
             cmake = CMake(self)
             cmake.configure()
             cmake.build()
-            self.run(os.path.join(self.cpp.build.bindir, 'tests', 'lazy_cpp_tests'))
+            self.run(os.path.join('unit_tests', 'lazy_cpp_tests'))
