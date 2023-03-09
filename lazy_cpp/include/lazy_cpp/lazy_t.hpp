@@ -15,6 +15,8 @@ namespace lazy_cpp
     public:
         using impl_ptr = std::shared_ptr<internal::i_lazy_impl<TValue>>;
 
+        lazy_t() = default;
+
         explicit lazy_t(impl_ptr impl) : impl_(impl)
         {
         }
@@ -34,12 +36,18 @@ namespace lazy_cpp
             return this->impl_->get_value();
         }
 
-    private:
-        using functional_impl_t = internal::lazy_functional_impl_t<TValue>;
-        using preset_impl_t = internal::initialized_lazy_impl_t<TValue>;
-        using ctor_lazy_impl_t = internal::lazy_ctor_impl_t<TValue>;
+        template<class T>
+        operator T() const
+        {
+            static_assert(std::is_convertible_v<T, TValue>, "T must be convertable to TValue");
+            return lazy_cast<T>(*this);
+        }
 
+    private:
         impl_ptr impl_;
+
+        template<class TDst, class TSrc>
+        friend lazy_t<TDst> lazy_cast(lazy_t<TSrc> const &src);
     };
 
     template<class TValue>
@@ -94,6 +102,13 @@ namespace lazy_cpp
         using impl_t = internal::shared_lazy_ctor_impl_t<TValue, TParams...>;
         auto impl = std::make_shared<impl_t>(std::forward<TParams>(params)...);
         return shared_lazy<TValue>(impl);
+    }
+
+    template<class TDst, class TSrc>
+    lazy_t<TDst> lazy_cast(lazy_t<TSrc> const &src)
+    {
+        auto src_impl = src.impl_;
+        return lazy_from_functor([src_impl]() { return (TDst) src_impl->get_value(); });
     }
 }
 

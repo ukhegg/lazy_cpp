@@ -96,5 +96,32 @@ namespace lazy_cpp::tests
             REQUIRE(*t == "aaaaaaaaaa");
             REQUIRE(lazy_s.initialized());
         }
+
+        SECTION("can do narrowing lazy cast")
+        {
+            lazy_t<size_t> ls = lazy_from_value<size_t>(10);
+            auto li = lazy_cast<int>(ls);
+            REQUIRE(li.get() == 10);
+        }
+
+        SECTION("can do implicit narrowing assign with shared pointers")
+        {
+            class base
+            {
+            public:
+                virtual ~base() = default;
+
+                virtual int get_42() const { return 41; }
+            };
+            class derived : public base{
+            public:
+                int get_42() const override { return 42; }
+            };
+
+            shared_lazy<base> base_shared;
+            base_shared = shared_lazy_from_ctor_params<derived>();
+
+            REQUIRE(base_shared.get()->get_42() == 42);
+        }
     }
 }
