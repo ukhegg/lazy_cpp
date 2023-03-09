@@ -135,12 +135,7 @@ namespace lazy_cpp::internal
     template<size_t... Is>
     TValue lazy_ctor_impl_t<TValue, TParams...>::construct_value(std::index_sequence<Is...>)
     {
-#ifdef NDEBUG
-        return TValue{get_value(std::get<Is>(this->ctor_params_))...};
-#else
-        auto ctor_params = std::make_tuple(get_value(std::get<Is>(this->ctor_params_))...);
-        return std::make_from_tuple<TValue>(ctor_params);
-#endif
+        return TValue(get_value(std::get<Is>(this->ctor_params_))...);
     }
 
     template<class TValue, class... TParams>

@@ -2,6 +2,7 @@ from conan import ConanFile
 from conan.tools.scm import Git
 from conan.tools.files import copy
 from conan.tools.build import can_run
+from conan.tools.cmake import cmake_layout, CMake
 import os
 
 
@@ -11,7 +12,7 @@ class LazyCppRecipe(ConanFile):
     user = 'ukhegg'
     channel = 'stable'
     url = 'https://github.com/ukhegg/lazy_cpp.git'
-
+    export_sources = 'lazy_cpp/include'
     settings = 'os', 'compiler', 'build_type', 'arch'
     generators = ['CMakeToolchain', 'CMakeDeps']
 
@@ -26,15 +27,12 @@ class LazyCppRecipe(ConanFile):
         git.clone(self.url, target='.')
         git.checkout(self.version)
 
-    def package(self):
-        copy(self, pattern="*.hpp",
-             src=os.path.join(self.source_folder, 'lazy_cpp/include/'),
-             dst=os.path.join(self.package_folder, 'include'))
-
     def package_info(self):
         self.cpp_info.include_dirs = 'include'
 
-    def test(self):
-        if can_run(self):
-            cmd = os.path.join(self.cpp.build.bindir, 'tests', "lazy_cpp_tests")
-            self.run(cmd, env="conanrun")
+    def build(self):
+        if not self.conf.get("tools.build:skip_test", default=False):
+            cmake = CMake(self)
+            cmake.configure()
+            cmake.build()
+            self.run(os.path.join(self.cpp.build.bindir, 'tests', 'lazy_cpp_tests'))
