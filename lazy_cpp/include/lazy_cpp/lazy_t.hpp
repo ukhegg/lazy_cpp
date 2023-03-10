@@ -39,9 +39,28 @@ namespace lazy_cpp
         template<class T>
         operator T() const;
 
+        template<class TResult, class TObj, class ... TFunctionParams, class ... TActualParams>
+        lazy_t<TResult> call(TResult(TObj::*func)(TFunctionParams...), TActualParams ... params)
+        {
+            return lazy_from_functor([func, impl = this->impl_, params...]() {
+                auto &val = impl->get_value();
+                return (val.*func)(params...);
+            });
+        }
+
+        template<class TResult, class TObj, class ... TFunctionsParams, class ... TActualParams>
+        lazy_t<TResult> call(TResult(TObj::*func)(TFunctionsParams...) const, TActualParams ... params) const
+        {
+            return lazy_from_functor([func, impl = this->impl_, params...]() {
+                auto const &val = impl->get_value();
+                return (val.*func)(params...);
+            });
+        }
+
     private:
         impl_ptr impl_;
     };
+
 
     template<class TValue>
     lazy_t<TValue> lazy_from_value(TValue &&value)
@@ -140,5 +159,6 @@ namespace lazy_cpp
             return (lazy_type) src_impl->get_value();
         }));
     }
+
 }
 

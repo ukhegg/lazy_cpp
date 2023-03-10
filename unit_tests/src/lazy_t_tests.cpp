@@ -133,5 +133,35 @@ namespace lazy_cpp::tests
 
             REQUIRE(b.get()->get_42() == 42);
         }
+
+        SECTION("can do lazy member function call without parameters")
+        {
+            auto ls = lazy_from_ctor_params<std::string>(10, 'a');
+            REQUIRE_FALSE(ls.initialized());
+            auto ll = ls.call(&std::string::size);
+
+            REQUIRE(std::is_same_v<lazy_t<size_t>, decltype(ll)>);
+            REQUIRE_FALSE(ls.initialized());
+            REQUIRE_FALSE(ll.initialized());
+
+            REQUIRE(ll.get() == 10);
+            REQUIRE(ls.initialized());
+            REQUIRE(ll.initialized());
+        }
+
+        SECTION("can do lazy member function call with parameters")
+        {
+            auto ls = lazy_from_ctor_params<std::string>("hello world");
+            REQUIRE_FALSE(ls.initialized());
+            auto lsubstr = ls.call(&std::string::substr, 0, 5);
+
+            REQUIRE(std::is_same_v<lazy_t<std::string>, decltype(lsubstr)>);
+            REQUIRE_FALSE(ls.initialized());
+            REQUIRE_FALSE(lsubstr.initialized());
+
+            REQUIRE(lsubstr.get() == "hello");
+            REQUIRE(ls.initialized());
+            REQUIRE(lsubstr.initialized());
+        }
     }
 }
