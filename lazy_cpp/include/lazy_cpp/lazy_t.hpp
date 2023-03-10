@@ -50,6 +50,13 @@ namespace lazy_cpp
         return lazy_t<TValue>(std::make_shared<impl_t>(std::forward<TValue>(value)));
     }
 
+    template<class TValue>
+    lazy_t<TValue> lazy_from_value(TValue const &value)
+    {
+        using impl_t = internal::initialized_lazy_impl_t<TValue>;
+        return lazy_t<TValue>(std::make_shared<impl_t>(value));
+    }
+
     template<class TFunction>
     std::enable_if_t<std::is_invocable_v<TFunction>,
             lazy_t<std::invoke_result_t<TFunction>>> lazy_from_functor(TFunction f)
@@ -74,6 +81,14 @@ namespace lazy_cpp
     shared_lazy<TValue> shared_lazy_from_value(TValue &&value)
     {
         auto value_impl = std::make_shared<TValue>(std::forward<TValue>(value));
+        using impl_t = internal::initialized_lazy_impl_t<std::shared_ptr<TValue>>;
+        return lazy_t<std::shared_ptr<TValue>>(std::make_shared<impl_t>(value_impl));
+    }
+
+    template<class TValue>
+    shared_lazy<TValue> shared_lazy_from_value(TValue const &value)
+    {
+        auto value_impl = std::make_shared<TValue>(value);
         using impl_t = internal::initialized_lazy_impl_t<std::shared_ptr<TValue>>;
         return lazy_t<std::shared_ptr<TValue>>(std::make_shared<impl_t>(value_impl));
     }
