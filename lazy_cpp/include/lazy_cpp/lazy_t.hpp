@@ -39,6 +39,8 @@ namespace lazy_cpp
         template<class T>
         operator T() const;
 
+        lazy_t &operator=(std::function<TValue()> initializer);
+
         template<class TResult, class TObj, class ... TFunctionParams, class ... TActualParams>
         lazy_t<TResult> call(TResult(TObj::*func)(TFunctionParams...), TActualParams ... params)
         {
@@ -158,6 +160,13 @@ namespace lazy_cpp
         return lazy_t<lazy_type>(std::make_shared<impl_t>([src_impl]() -> lazy_type {
             return (lazy_type) src_impl->get_value();
         }));
+    }
+
+    template<class TValue>
+    lazy_t<TValue> &lazy_t<TValue>::operator=(std::function<TValue()> initializer)
+    {
+        this->impl_ = std::make_shared<internal::lazy_functional_impl_t<TValue>>(initializer);
+        return *this;
     }
 
 }

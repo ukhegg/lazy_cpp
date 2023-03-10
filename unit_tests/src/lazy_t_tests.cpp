@@ -129,7 +129,7 @@ namespace lazy_cpp::tests
             REQUIRE(std::is_same_v<decltype(d), lazy_cpp::lazy_t<std::shared_ptr<derived>>>);
             shared_lazy<base> b;
             REQUIRE(std::is_same_v<decltype(b), lazy_cpp::lazy_t<std::shared_ptr<base>>>);
-            b = d;
+            b = static_cast<shared_lazy<base>>(d);
 
             REQUIRE(b.get()->get_42() == 42);
         }
@@ -162,6 +162,15 @@ namespace lazy_cpp::tests
             REQUIRE(lsubstr.get() == "hello");
             REQUIRE(ls.initialized());
             REQUIRE(lsubstr.initialized());
+        }
+
+        SECTION("can assign function to a lazy")
+        {
+            lazy_t<int> val = lazy_from_value(5);
+            val = []() { return 42; };
+            REQUIRE_FALSE(val.initialized());
+            REQUIRE(val.get() == 42);
+            REQUIRE(val.initialized());
         }
     }
 }
