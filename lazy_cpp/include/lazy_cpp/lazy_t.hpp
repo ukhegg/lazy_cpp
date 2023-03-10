@@ -39,7 +39,20 @@ namespace lazy_cpp
         template<class T>
         operator T() const;
 
-        lazy_t &operator=(std::function<TValue()> initializer);
+        template<class TSomeValue>
+        std::enable_if_t<std::is_convertible_v<TSomeValue, TValue>, lazy_t<TValue>> &operator=(TSomeValue const &rhs);
+
+        template<class TFunctor>
+        std::enable_if_t<
+                std::is_invocable_v<TFunctor>
+                && std::is_convertible_v<std::invoke_result_t<TFunctor>, TValue>,
+                lazy_t<TValue>> &operator=(TFunctor initializer);
+
+        template<class TOtherLazy>
+        std::enable_if_t<
+                std::is_convertible_v<TOtherLazy, TValue>,
+                lazy_t<TValue>> &operator=(lazy_t<TOtherLazy> const &rhs);
+
 
         template<class TResult, class TObj, class ... TFunctionParams, class ... TActualParams>
         lazy_t<TResult> call(TResult(TObj::*func)(TFunctionParams...), TActualParams ... params)
@@ -154,20 +167,49 @@ namespace lazy_cpp
 
         static_assert(std::is_convertible_v<TValue, lazy_type>, "T::lazy_type must be convertable to TValue");
         static_assert(std::is_same_v<T, lazy_t<lazy_type>>, "paranoic check)");
-        using impl_t = internal::lazy_functional_impl_t<lazy_type>;
-        auto src_impl = this->impl_;
 
-        return lazy_t<lazy_type>(std::make_shared<impl_t>([src_impl]() -> lazy_type {
-            return (lazy_type) src_impl->get_value();
-        }));
+        if (this->impl_->has_value()) {
+            return lazy_from_value(static_cast<lazy_type>(this->impl_->get_value()));
+        } else {
+            using impl_t = internal::lazy_functional_impl_t<lazy_type>;
+            return lazy_t<lazy_type>(std::make_shared<impl_t>([src_impl = this->impl_]() -> lazy_type {
+                return (lazy_type) src_impl->get_value();
+            }));
+        }
+
     }
 
     template<class TValue>
-    lazy_t<TValue> &lazy_t<TValue>::operator=(std::function<TValue()> initializer)
+    template<class TSomeValue>
+    std::enable_if_t<std::is_convertible_v<TSomeValue, TValue>, lazy_t<TValue>> &
+    lazy_t<TValue>::operator=(const TSomeValue &rhs)
     {
-        this->impl_ = std::make_shared<internal::lazy_functional_impl_t<TValue>>(initializer);
+        this->impl_ = static_cast<lazy_t<TValue>>(lazy_from_value(rhs)).impl_;
         return *this;
     }
+
+    template<class TValue>
+    template<class TFunctor>
+    std::enable_if_t<
+            std::is_invocable_v<TFunctor>
+            && std::is_convertible_v<std::invoke_result_t<TFunctor>, TValue>,
+            lazy_t<TValue>> &lazy_t<TValue>::operator=(TFunctor initializer)
+    {
+        auto rhs_lazy = lazy_from_functor(initializer);
+        this->impl_ = static_cast<lazy_t<TValue>>(rhs_lazy).impl_;
+        return *this;
+    }
+
+    template<class TValue>
+    template<class TOtherLazy>
+    std::enable_if_t<
+            std::is_convertible_v<TOtherLazy, TValue>,
+            lazy_t<TValue>> &lazy_t<TValue>::operator=(const lazy_t<TOtherLazy> &rhs)
+    {
+        this->impl_ = static_cast<lazy_t<TValue>>(rhs).impl_;
+        return *this;
+    }
+
 
 }
 

@@ -167,10 +167,19 @@ namespace lazy_cpp::tests
         SECTION("can assign function to a lazy")
         {
             lazy_t<int> val = lazy_from_value(5);
-            val = []() { return 42; };
+            val = []() -> size_t { return 42; };
             REQUIRE_FALSE(val.initialized());
             REQUIRE(val.get() == 42);
             REQUIRE(val.initialized());
+        }
+
+        SECTION("assign value to lazy")
+        {
+            lazy_t<int> val = lazy_from_value(5);
+
+            val = (size_t) 42;
+            REQUIRE(val.initialized());
+            REQUIRE(val.get() == 42);
         }
     }
 }
