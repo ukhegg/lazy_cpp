@@ -9,7 +9,7 @@ import pathlib
 
 class LazyCppRecipe(ConanFile):
     name = 'lazy_cpp'
-    version = '0.11'
+    version = '0.12'
     user = 'ukhegg'
     channel = 'stable'
     url = 'https://github.com/ukhegg/lazy_cpp.git'
