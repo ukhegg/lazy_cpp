@@ -37,17 +37,10 @@ namespace lazy_cpp
         }
 
         template<class T>
-        operator T() const
-        {
-            static_assert(std::is_convertible_v<T, TValue>, "T must be convertable to TValue");
-            return lazy_cast<T>(*this);
-        }
+        operator T() const;
 
     private:
         impl_ptr impl_;
-
-        template<class TDst, class TSrc>
-        friend lazy_t<TDst> lazy_cast(lazy_t<TSrc> const &src);
     };
 
     template<class TValue>
@@ -104,13 +97,33 @@ namespace lazy_cpp
         return shared_lazy<TValue>(impl);
     }
 
-    template<class TDst, class TSrc>
-    lazy_t<TDst> lazy_cast(lazy_t<TSrc> const &src)
+    template<class TTarget, class TSource>
+    lazy_t<TTarget> lazy_cast(lazy_t<TSource> const &src)
     {
-        auto src_impl = src.impl_;
-        return lazy_from_functor([src_impl]() { return (TDst) src_impl->get_value(); });
+        return static_cast<lazy_t<TTarget>>(src);
     }
 }
 
 #include "lazy_cpp/lazy_impl_t.hpp"
+
+namespace lazy_cpp
+{
+    template<class TValue>
+    template<class T>
+    lazy_t<TValue>::operator T() const
+    {
+        static_assert(internal::helper_functions::is_lazy_v<T>, "T must be lazy_t<...>");
+
+        using lazy_type = typename internal::helper_functions::lazy_traits<T>::lazy_type;
+
+        static_assert(std::is_convertible_v<TValue, lazy_type>, "T::lazy_type must be convertable to TValue");
+        static_assert(std::is_same_v<T, lazy_t<lazy_type>>, "paranoic check)");
+        using impl_t = internal::lazy_functional_impl_t<lazy_type>;
+        auto src_impl = this->impl_;
+
+        return lazy_t<lazy_type>(std::make_shared<impl_t>([src_impl]() -> lazy_type {
+            return (lazy_type) src_impl->get_value();
+        }));
+    }
+}
 

@@ -111,17 +111,27 @@ namespace lazy_cpp::tests
             public:
                 virtual ~base() = default;
 
-                virtual int get_42() const { return 41; }
+                virtual int get_42() const
+                {
+                    return 41;
+                }
             };
-            class derived : public base{
+            class derived : public base
+            {
             public:
-                int get_42() const override { return 42; }
+                int get_42() const override
+                {
+                    return 42;
+                }
             };
 
-            shared_lazy<base> base_shared;
-            base_shared = shared_lazy_from_ctor_params<derived>();
+            auto d = shared_lazy_from_ctor_params<derived>();
+            REQUIRE(std::is_same_v<decltype(d), lazy_cpp::lazy_t<std::shared_ptr<derived>>>);
+            shared_lazy<base> b;
+            REQUIRE(std::is_same_v<decltype(b), lazy_cpp::lazy_t<std::shared_ptr<base>>>);
+            b = d;
 
-            REQUIRE(base_shared.get()->get_42() == 42);
+            REQUIRE(b.get()->get_42() == 42);
         }
     }
 }
