@@ -11,6 +11,8 @@ namespace lazy_cpp::internal
     class i_lazy_impl
     {
     public:
+        virtual ~i_lazy_impl() = default;
+
         virtual bool has_value() const = 0;
 
         virtual bool try_get_value(TValue &value) = 0;
